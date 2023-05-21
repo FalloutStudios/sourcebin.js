@@ -5,13 +5,13 @@ import { BinFileBuilder } from './BinFileBuilder';
 export class BinBuilder {
     private data: APIBinData = { files: [] };
 
-    public setTitle(title: string): this {
-        this.data.title = title;
+    public setTitle(title?: string|null): this {
+        this.data.title = title || undefined;
         return this;
     }
 
-    public setDescription(description: string): this {
-        this.data.description = description;
+    public setDescription(description?: string|null): this {
+        this.data.description = description || undefined;
         return this;
     }
 

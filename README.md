@@ -32,7 +32,7 @@ create({
 
 ### Usage With Account
 
-To get your token, login to https://sourceb.in then open the dev panel in your brower then find the applications tab then go to `cookies` then copy the value of `access_token`.
+To get your token, login to https://sourceb.in, open the dev panel in your browser, find the applications tab, go to cookies, then copy the value of `access_token`.
 
 ![](https://i.imgur.com/zsZjHD4.png)
 

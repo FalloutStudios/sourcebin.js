@@ -1,5 +1,6 @@
 {
   "name": "sourcebin.js",
+  "description": "A simple https://sourceb.in api library",
   "version": "1.0.0",
   "main": "./dist/index.js",
   "module": "./dist/esm.mjs",
@@ -11,6 +12,10 @@
       "types": "./dist/index.d.ts"
     }
   },
+  "keywords": [
+    "sourcebin",
+    "sourcebin api"
+  ],
   "scripts": {
     "clean": "npx rimraf dist",
     "build": "npm run clean && npx tsc"

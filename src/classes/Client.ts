@@ -6,7 +6,7 @@ import { APICreateBinResponse } from '../types/apiTypes';
 import { BinBuilder } from './builders/BinBuilder';
 
 export interface ClientOptions {
-    token?: string;
+    token: string;
     cacheBins?: boolean;
 }
 

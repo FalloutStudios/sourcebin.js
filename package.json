@@ -16,6 +16,11 @@
     "sourcebin",
     "sourcebin api"
   ],
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
   "scripts": {
     "clean": "npx rimraf dist",
     "build": "npm run clean && npx tsc"

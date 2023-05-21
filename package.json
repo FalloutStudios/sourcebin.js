@@ -20,13 +20,13 @@
     "clean": "npx rimraf dist",
     "build": "npm run clean && npx tsc"
   },
-  "devDependencies": {
-    "rimraf": "^5.0.1",
-    "typescript": "^5.0.4"
-  },
   "dependencies": {
     "@discordjs/collection": "^1.5.1",
     "axios": "^1.4.0",
     "fallout-utility": "^2.5.0"
+  },
+  "devDependencies": {
+    "rimraf": "^5.0.1",
+    "typescript": "^5.0.4"
   }
 }

@@ -98,6 +98,6 @@ export class Client {
      * @param requestOptions Additional axios options
      */
     public static async getBinContent(key: string, index: number, requestOptions?: AxiosRequestConfig): Promise<string> {
-        return axios.get<string>(`https://sourceb.in/api/bins/${key}/${index}`, requestOptions).then(d => d.data);
+        return axios.get<string>(`https://cdn.sourceb.in/bins/${key}/${index}`, requestOptions).then(d => d.data);
     }
 }

@@ -48,7 +48,14 @@ export class Client {
      */
     public async fetchBin(key: string, cache: boolean = true): Promise<Bin> {
         const data = await Client.getBin(key, this.requestOptions);
-        const bin = new Bin({ ...data, client: this });
+        const contents: { content: string; index: number; }[] = [];
+
+        for (const index in data.files) {
+            const content = await Client.getBinContent(data.key, Number(index));
+            contents.push({ content, index: Number(index) });
+        }
+
+        const bin = new Bin({ ...data, client: this }, contents);
 
         if (cache) this.addBinToCache(bin);
         return bin;
@@ -82,5 +89,15 @@ export class Client {
      */
     public static async getBin(key: string, requestOptions?: AxiosRequestConfig): Promise<APIGetBinResponse> {
         return axios.get<APIGetBinResponse>(`https://sourceb.in/api/bins/${key}`, requestOptions).then(d => d.data);
+    }
+
+    /**
+     * Get bin content
+     * @param key Bin key
+     * @param index Bin file index
+     * @param requestOptions Additional axios options
+     */
+    public static async getBinContent(key: string, index: number, requestOptions?: AxiosRequestConfig): Promise<string> {
+        return axios.get<string>(`https://sourceb.in/api/bins/${key}/${index}`, requestOptions).then(d => d.data);
     }
 }

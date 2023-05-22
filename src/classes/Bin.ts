@@ -21,16 +21,16 @@ export class Bin implements Omit<APIGetBinResponse, 'created'> {
         return `https://sourceb.in/${this.key}`;
     }
 
-    constructor(options: BinOptions) {
+    constructor(options: BinOptions, contents: { content: string; index: number; }[]) {
         this.hits = options.hits;
         this._id = options._id;
         this.key = options.key;
         this.created = new Date(options.created);
         this.title = options.title;
         this.description = options.description;
-        this.files = options.files.map(f => {
-            if (!f.content) f.content = '';
-            return new BinFile(this, f);
+        this.files = options.files.map((f, i) => {
+            const content = contents.find(c => c.index === i)?.content || '';
+            return new BinFile(this, { ...f, content });
         });
 
         this.client = options.client;

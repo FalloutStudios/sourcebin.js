@@ -9,7 +9,7 @@ export interface APIGetBinResponse extends Omit<APIBinData, 'files'> {
     hits: number;
     _id: string;
     key: string;
-    files: (APIBinFileData & { content?: string; })[];
+    files: Omit<APIBinFileData, 'content'>[];
     created: string;
 }
 

@@ -13,3 +13,4 @@ export * from './types/options';
 
 export const create = (bin: APIBinData|BinBuilder) => Client.createBin(bin);
 export const get = (key: string) => Client.getBin(key);
+export const fetchContent = (key: string, index: number = 0) => Client.getBinContent(key, index);

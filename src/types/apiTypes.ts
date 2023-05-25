@@ -17,6 +17,22 @@ export interface APIDeleteBinResponse {
     success: boolean;
 }
 
+export interface APIFetchUserResponse {
+    username: string;
+    about: {
+        avatarURL?: string;
+        bio?: string;
+        website?: string;
+        location?: string;
+    };
+    oauth: {
+        discord?: string;
+        github?: string;
+    };
+    plan: string;
+    createdAt: string;
+}
+
 export interface APIBinData {
     title?: string;
     description?: string;

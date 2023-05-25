@@ -1,31 +1,21 @@
 import { Collection } from '@discordjs/collection';
-import { APIBinData, APIDeleteBinResponse, APIGetBinResponse } from '../types/apiTypes';
+import { APIBinData } from '../types/apiTypes';
 import { Bin, BinOptions } from './Bin';
-import axios, { AxiosRequestConfig } from 'axios';
 import { APICreateBinResponse } from '../types/apiTypes';
-import { JSONEncodable, isJSONEncodable } from 'fallout-utility';
+import { JSONEncodable } from 'fallout-utility';
+import { REST } from './REST';
 
 export interface ClientOptions {
     token?: string;
     cacheBins?: boolean;
 }
 
-export class Client {
+export class Client extends REST {
     readonly cache: Collection<string, Bin> = new Collection();
 
-    get accessToken() { return this.options?.token; }
-    get requestOptions() {
-        const options: AxiosRequestConfig = {};
-
-        if (!this.accessToken) return options;
-
-        options.headers = { Cookie: `access_token=${this.accessToken};` };
-        options.withCredentials = true;
-
-        return options;
-    };
-
-    constructor(readonly options?: ClientOptions) {}
+    constructor(readonly options?: ClientOptions) {
+        super(options?.token);
+    }
 
     /**
      * Creates new bin
@@ -49,15 +39,30 @@ export class Client {
     public async fetchBin(key: string, cache: boolean = true): Promise<Bin> {
         const data = await Client.getBin(key, this.requestOptions) as Omit<BinOptions, 'client'>;
 
-        for (const index in data.files) {
-            const content = await Client.getBinContent(data.key, Number(index));
-            data.files[0].content = content;
-        }
-
         const bin = new Bin({ ...data, client: this });
+
+        await bin.fetchFileContents();
 
         if (cache) this.addBinToCache(bin);
         return bin;
+    }
+
+    /**
+     * Fetch user bins
+     * @param cache Adds the feetched bins to cache if enabled
+     */
+    public async fetchUserBins(cache: boolean = true): Promise<Bin[]> {
+        const rawBins = await this.getUserBins();
+        const bins = await Promise.all(rawBins.map(async (data: Omit<BinOptions, 'client'>) => {
+            const bin = new Bin(data);
+
+            await bin.fetchFileContents();
+
+            return bin;
+        }));
+
+        if (cache) bins.forEach(b => this.addBinToCache(b));
+        return bins;
     }
 
     /**
@@ -70,42 +75,5 @@ export class Client {
 
     protected addBinToCache(bin: Bin): void {
         if (this.options?.cacheBins !== false) this.cache.set(bin.key, bin);
-    }
-
-    /**
-     * Fetch bin
-     * @param bin Bin data or builder
-     * @param requestOptions Additional axios options
-     */
-    public static async createBin(bin: APIBinData|JSONEncodable<APIBinData>, requestOptions?: AxiosRequestConfig): Promise<APICreateBinResponse> {
-        return axios.post<APICreateBinResponse>(`https://sourceb.in/api/bins`, isJSONEncodable(bin) ? bin.toJSON() : bin, requestOptions).then(d => d.data);
-    }
-
-    /**
-     * Get raw bin data
-     * @param key Bin key
-     * @param requestOptions Additional axios options
-     */
-    public static async getBin(key: string, requestOptions?: AxiosRequestConfig): Promise<APIGetBinResponse> {
-        return axios.get<APIGetBinResponse>(`https://sourceb.in/api/bins/${key}`, requestOptions).then(d => d.data);
-    }
-
-    /**
-     * Get raw bin data
-     * @param key Bin key
-     * @param requestOptions Additional axios options
-     */
-    public static async deleteBin(key: string, requestOptions?: AxiosRequestConfig): Promise<APIDeleteBinResponse> {
-        return axios.delete<APIDeleteBinResponse>(`https://sourceb.in/api/bins/${key}`, requestOptions).then(d => d.data);
-    }
-
-    /**
-     * Get bin content
-     * @param key Bin key
-     * @param index Bin file index
-     * @param requestOptions Additional axios options
-     */
-    public static async getBinContent(key: string, index: number, requestOptions?: AxiosRequestConfig): Promise<string> {
-        return axios.get<string>(`https://cdn.sourceb.in/bins/${key}/${index}`, requestOptions).then(d => d.data);
     }
 }

@@ -1,9 +1,9 @@
 import { Nothing } from 'fallout-utility';
-import { APIBinData, APIGetBinResponse } from '../types/apiTypes';
+import { APIBinData, APIBinFileData, APIGetBinResponse } from '../types/apiTypes';
 import { BinFile } from './BinFile';
 import { Client } from './Client';
 
-export interface BinOptions extends Nothing<Omit<APIGetBinResponse, 'files'> & Pick<APIBinData, 'files'>> {
+export interface BinOptions extends Nothing<Omit<APIGetBinResponse, 'files'> & { files: (Omit<APIBinFileData, 'content'> & { content?: string; })[] }> {
     client?: Client;
 }
 
@@ -32,15 +32,19 @@ export class Bin implements Omit<APIGetBinResponse, 'created'> {
             const content = contents?.find(c => c.index === i)?.content;
             if (content) f.content = content;
 
-            return new BinFile(this, f);
+            return new BinFile(this, i, f);
         });
 
         this.client = options.client;
     }
 
+    public async fetchFileContents(): Promise<string[]> {
+        return Promise.all(this.files.map(async f => f.fetchContent()));
+    }
+
     public async delete(): Promise<void> {
-        const data = await Client.deleteBin(this.key);
-        if (!data.success) throw new Error('Unable to delete bin.');
+        const data = await this.client?.deleteBin(this.key);
+        if (!data?.success) throw new Error('Unable to delete bin.');
 
         this.client?.cache.delete(this.key);
     }

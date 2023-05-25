@@ -7,6 +7,7 @@ export * from './classes/builders/BinFileBuilder';
 export * from './classes/Bin';
 export * from './classes/BinFile';
 export * from './classes/Client';
+export * from './classes/REST';
 export * from './types/apiTypes';
 export * from './types/languages';
 export * from './types/options';

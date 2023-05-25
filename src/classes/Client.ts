@@ -1,9 +1,9 @@
 import { Collection } from '@discordjs/collection';
 import { APIBinData, APIDeleteBinResponse, APIGetBinResponse } from '../types/apiTypes';
-import { Bin } from './Bin';
+import { Bin, BinOptions } from './Bin';
 import axios, { AxiosRequestConfig } from 'axios';
 import { APICreateBinResponse } from '../types/apiTypes';
-import { BinBuilder } from './builders/BinBuilder';
+import { JSONEncodable, isJSONEncodable } from 'fallout-utility';
 
 export interface ClientOptions {
     token?: string;
@@ -32,9 +32,9 @@ export class Client {
      * @param bin Bin data or builder
      * @param fetchContent Whether fetch content of bin after creation
      */
-    public async createBin(bin: APIBinData|BinBuilder, fetchContent?: true): Promise<Bin>;
-    public async createBin(bin: APIBinData|BinBuilder, fetchContent?: false): Promise<APICreateBinResponse>;
-    public async createBin(bin: APIBinData|BinBuilder, fetchContent: boolean = true): Promise<Bin|APICreateBinResponse> {
+    public async createBin(bin: APIBinData|JSONEncodable<APIBinData>, fetchContent?: true): Promise<Bin>;
+    public async createBin(bin: APIBinData|JSONEncodable<APIBinData>, fetchContent?: false): Promise<APICreateBinResponse>;
+    public async createBin(bin: APIBinData|JSONEncodable<APIBinData>, fetchContent: boolean = true): Promise<Bin|APICreateBinResponse> {
         const response = await Client.createBin(bin, this.requestOptions);
         if (!fetchContent) return response;
 
@@ -47,15 +47,14 @@ export class Client {
      * @param cache Adds the fetched bin to cache if enabled
      */
     public async fetchBin(key: string, cache: boolean = true): Promise<Bin> {
-        const data = await Client.getBin(key, this.requestOptions);
-        const contents: { content: string; index: number; }[] = [];
+        const data = await Client.getBin(key, this.requestOptions) as Omit<BinOptions, 'client'>;
 
         for (const index in data.files) {
             const content = await Client.getBinContent(data.key, Number(index));
-            contents.push({ content, index: Number(index) });
+            data.files[0].content = content;
         }
 
-        const bin = new Bin({ ...data, client: this }, contents);
+        const bin = new Bin({ ...data, client: this });
 
         if (cache) this.addBinToCache(bin);
         return bin;
@@ -78,8 +77,8 @@ export class Client {
      * @param bin Bin data or builder
      * @param requestOptions Additional axios options
      */
-    public static async createBin(bin: APIBinData|BinBuilder, requestOptions?: AxiosRequestConfig): Promise<APICreateBinResponse> {
-        return axios.post<APICreateBinResponse>(`https://sourceb.in/api/bins`, bin instanceof BinBuilder ? bin.toJSON() : bin, requestOptions).then(d => d.data);
+    public static async createBin(bin: APIBinData|JSONEncodable<APIBinData>, requestOptions?: AxiosRequestConfig): Promise<APICreateBinResponse> {
+        return axios.post<APICreateBinResponse>(`https://sourceb.in/api/bins`, isJSONEncodable(bin) ? bin.toJSON() : bin, requestOptions).then(d => d.data);
     }
 
     /**

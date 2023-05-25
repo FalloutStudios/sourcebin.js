@@ -1,8 +1,9 @@
+import { Nothing } from 'fallout-utility';
 import { APIBinData, APIGetBinResponse } from '../types/apiTypes';
 import { BinFile } from './BinFile';
 import { Client } from './Client';
 
-export interface BinOptions extends APIGetBinResponse {
+export interface BinOptions extends Nothing<Omit<APIGetBinResponse, 'files'> & Pick<APIBinData, 'files'>> {
     client?: Client;
 }
 
@@ -20,7 +21,7 @@ export class Bin implements Omit<APIGetBinResponse, 'created'> {
         return `https://sourceb.in/${this.key}`;
     }
 
-    constructor(options: BinOptions, contents: { content: string; index: number; }[]) {
+    constructor(options: BinOptions, contents?: { content: string; index: number; }[]) {
         this.hits = options.hits;
         this._id = options._id;
         this.key = options.key;
@@ -28,8 +29,10 @@ export class Bin implements Omit<APIGetBinResponse, 'created'> {
         this.title = options.title;
         this.description = options.description;
         this.files = options.files.map((f, i) => {
-            const content = contents.find(c => c.index === i)?.content || '';
-            return new BinFile(this, { ...f, content });
+            const content = contents?.find(c => c.index === i)?.content;
+            if (content) f.content = content;
+
+            return new BinFile(this, f);
         });
 
         this.client = options.client;

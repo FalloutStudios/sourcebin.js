@@ -35,6 +35,7 @@
     "rimraf": "^5.0.1",
     "typescript": "^5.0.4"
   },
+  "workspaces": ["./example/"],
   "publishConfig": {
     "access": "public"
   }

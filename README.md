@@ -5,15 +5,15 @@ A simple https://sourceb.in api library
 ## Installation
 
 ```bash
-npm i sourcebin.js
-yarn add sourcebin.js
-pnpm add sourcebin.js
+npm i @falloutstudios/sourcebin.js
+yarn add @falloutstudios/sourcebin.js
+pnpm add @falloutstudios/sourcebin.js
 ```
 
 ### Simple Usage
 
 ```js
-const { create, get, LanguageType } = require('sourcebin.js'); // Use import for ES Modules
+const { create, get, LanguageType } = require('@falloutstudios/sourcebin.js'); // Use import for ES Modules
 
 create({
     title: 'My Bin',
@@ -37,7 +37,7 @@ To get your token, login to https://sourceb.in, open the dev panel in your brow
 ![](https://i.imgur.com/zsZjHD4.png)
 
 ```js
-const { Client, LanguageType } = require('sourcebin.js'); // Use import for ES Modules
+const { Client, LanguageType } = require('@falloutstudios/sourcebin.js'); // Use import for ES Modules
 
 const client = new Client({
     token: 'acess_token'

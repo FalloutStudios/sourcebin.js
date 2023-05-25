@@ -1,5 +1,5 @@
 import { Collection } from '@discordjs/collection';
-import { APIBinData, APIGetBinResponse } from '../types/apiTypes';
+import { APIBinData, APIDeleteBinResponse, APIGetBinResponse } from '../types/apiTypes';
 import { Bin } from './Bin';
 import axios, { AxiosRequestConfig } from 'axios';
 import { APICreateBinResponse } from '../types/apiTypes';
@@ -89,6 +89,15 @@ export class Client {
      */
     public static async getBin(key: string, requestOptions?: AxiosRequestConfig): Promise<APIGetBinResponse> {
         return axios.get<APIGetBinResponse>(`https://sourceb.in/api/bins/${key}`, requestOptions).then(d => d.data);
+    }
+
+    /**
+     * Get raw bin data
+     * @param key Bin key
+     * @param requestOptions Additional axios options
+     */
+    public static async deleteBin(key: string, requestOptions?: AxiosRequestConfig): Promise<APIDeleteBinResponse> {
+        return axios.delete<APIDeleteBinResponse>(`https://sourceb.in/api/bins/${key}`, requestOptions).then(d => d.data);
     }
 
     /**

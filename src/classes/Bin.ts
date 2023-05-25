@@ -1,5 +1,4 @@
-import axios from 'axios';
-import { APIBinData, APIDeleteBinResponse, APIGetBinResponse } from '../types/apiTypes';
+import { APIBinData, APIGetBinResponse } from '../types/apiTypes';
 import { BinFile } from './BinFile';
 import { Client } from './Client';
 
@@ -37,7 +36,7 @@ export class Bin implements Omit<APIGetBinResponse, 'created'> {
     }
 
     public async delete(): Promise<void> {
-        const data = await axios.delete<APIDeleteBinResponse>(`https://sourceb.in/api/bins/${this.key}`, this.client?.requestOptions).then(d => d.data);
+        const data = await Client.deleteBin(this.key);
         if (!data.success) throw new Error('Unable to delete bin.');
 
         this.client?.cache.delete(this.key);

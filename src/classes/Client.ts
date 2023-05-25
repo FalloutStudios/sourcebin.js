@@ -54,10 +54,8 @@ export class Client extends REST {
     public async fetchUserBins(cache: boolean = true): Promise<Bin[]> {
         const rawBins = await this.getUserBins();
         const bins = await Promise.all(rawBins.map(async (data: Omit<BinOptions, 'client'>) => {
-            const bin = new Bin(data);
-
+            const bin = new Bin({ ...data, client: this });
             await bin.fetchFileContents();
-
             return bin;
         }));
 

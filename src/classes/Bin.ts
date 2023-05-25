@@ -44,7 +44,7 @@ export class Bin implements Omit<APIGetBinResponse, 'created'> {
 
     public async delete(): Promise<void> {
         const data = await this.client?.deleteBin(this.key);
-        if (!data?.success) throw new Error('Unable to delete bin.');
+        if (!data?.success) throw new Error('Unable to delete bin.', { cause: data });
 
         this.client?.cache.delete(this.key);
     }

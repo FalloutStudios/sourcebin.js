@@ -2,6 +2,7 @@ import { Nothing } from 'fallout-utility';
 import { APIBinData, APIBinFileData, APIGetBinResponse } from '../types/apiTypes';
 import { BinFile } from './BinFile';
 import { Client } from './Client';
+import { LongSourcebinURL, ShortSourcebinURL } from '..';
 
 export interface BinOptions extends Nothing<Omit<APIGetBinResponse, 'files'> & { files: (Omit<APIBinFileData, 'content'> & { content?: string; })[] }> {
     client?: Client;
@@ -17,8 +18,12 @@ export class Bin implements Omit<APIGetBinResponse, 'created'> {
     readonly files: BinFile[] = [];
     readonly client?: Client;
 
-    get url() {
+    get url(): LongSourcebinURL<true> {
         return `https://sourceb.in/${this.key}`;
+    }
+
+    get shortURL(): ShortSourcebinURL<true> {
+        return `https://srcb.in/${this.key}`;
     }
 
     constructor(options: BinOptions, contents?: { content: string; index: number; }[]) {

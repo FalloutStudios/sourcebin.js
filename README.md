@@ -10,7 +10,7 @@ yarn add @falloutstudios/sourcebin.js
 pnpm add @falloutstudios/sourcebin.js
 ```
 
-### Simple Usage
+### Simple usage
 
 ```js
 const { create, get, LanguageType } = require('@falloutstudios/sourcebin.js'); // Use import for ES Modules
@@ -30,7 +30,10 @@ create({
 })
 ```
 
-### Usage With Account
+### Usage with account
+
+> **Warning**
+> Automating account actions is against the [sourcebin terms](https://sourceb.in/terms#accounts). We are not responsible for your account in case of termination.
 
 To get your token, login to https://sourceb.in, open the dev panel in your browser, find the applications tab, go to cookies, then copy the value of `access_token`.
 

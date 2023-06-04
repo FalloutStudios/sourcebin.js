@@ -4,6 +4,7 @@ import { Bin, BinOptions } from './Bin';
 import { APICreateBinResponse } from '../types/apiTypes';
 import { JSONEncodable, trimChars } from 'fallout-utility';
 import { REST } from './REST';
+import { SourcebinURL } from '..';
 
 export interface ClientOptions {
     token?: string;
@@ -75,7 +76,7 @@ export class Client extends REST {
         if (this.options?.cacheBins !== false) this.cache.set(bin.key, bin);
     }
 
-    public static isSourcebin(url: string): url is `${'http://'|'https://'}${'sourceb'|'srcb'}.in/${string}` {
+    public static isSourcebin(url: string): url is SourcebinURL {
         const parsed = new URL(url);
 
         return (['sourceb.in', 'srcb.in'].includes(parsed.hostname)) && trimChars(parsed.pathname, '/').length === 10;

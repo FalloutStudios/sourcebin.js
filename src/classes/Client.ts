@@ -2,7 +2,7 @@ import { Collection } from '@discordjs/collection';
 import { APIBinData } from '../types/apiTypes';
 import { Bin, BinOptions } from './Bin';
 import { APICreateBinResponse } from '../types/apiTypes';
-import { JSONEncodable } from 'fallout-utility';
+import { JSONEncodable, trimChars } from 'fallout-utility';
 import { REST } from './REST';
 
 export interface ClientOptions {
@@ -73,5 +73,18 @@ export class Client extends REST {
 
     protected addBinToCache(bin: Bin): void {
         if (this.options?.cacheBins !== false) this.cache.set(bin.key, bin);
+    }
+
+    public static isSourcebin(url: string): url is `${'http://'|'https://'}${'sourceb'|'srcb'}.in/${string}` {
+        const parsed = new URL(url);
+
+        return (['sourceb.in', 'srcb.in'].includes(parsed.hostname)) && trimChars(parsed.pathname, '/').length === 10;
+    }
+
+    public static getKeyFromURL(url: string): string {
+        if (!this.isSourcebin(url)) throw new Error('Invalid sourceb.in link');
+
+        const parsed = new URL(url);
+        return trimChars(parsed.pathname, '/');
     }
 }

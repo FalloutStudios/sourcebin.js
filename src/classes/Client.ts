@@ -34,10 +34,12 @@ export class Client extends REST {
 
     /**
      * Fetch bin data
-     * @param key Bin key
+     * @param key Bin key or url
      * @param cache Adds the fetched bin to cache if enabled
      */
     public async fetchBin(key: string, cache: boolean = true): Promise<Bin> {
+        key = Client.isSourcebinURL(key) ? Client.getKeyFromURL(key) : key;
+
         const data = await Client.getBin(key, this.requestOptions) as Omit<BinOptions, 'client'>;
 
         const bin = new Bin({ ...data, client: this });
@@ -66,24 +68,33 @@ export class Client extends REST {
 
     /**
      * Retrieves the bin data from cache or fetch from api
-     * @param key Bin key
+     * @param key Bin key or url
      */
     public async resolveBin(key: string): Promise<Bin> {
+        key = Client.isSourcebinURL(key) ? Client.getKeyFromURL(key) : key;
+
         return this.cache.get(key) ?? this.fetchBin(key);
     }
 
     protected addBinToCache(bin: Bin): void {
+        const cached = this.cache.get(bin.key);
+
+        if (cached) cached._updateData(bin.toJSON());
         if (this.options?.cacheBins !== false) this.cache.set(bin.key, bin);
     }
 
-    public static isSourcebin(url: string): url is SourcebinURL {
-        const parsed = new URL(url);
+    public static isSourcebinURL(url: string): url is SourcebinURL {
+        try {
+            const parsed = new URL(url);
 
-        return (['sourceb.in', 'srcb.in'].includes(parsed.hostname)) && trimChars(parsed.pathname, '/').length === 10;
+            return (['sourceb.in', 'srcb.in'].includes(parsed.hostname)) && trimChars(parsed.pathname, '/').length === 10;
+        } catch(err) {
+            return false;
+        }
     }
 
     public static getKeyFromURL(url: string): string {
-        if (!this.isSourcebin(url)) throw new Error('Invalid sourceb.in link');
+        if (!this.isSourcebinURL(url)) throw new Error('Invalid sourceb.in link');
 
         const parsed = new URL(url);
         return trimChars(parsed.pathname, '/');

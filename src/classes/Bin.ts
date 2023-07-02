@@ -1,22 +1,23 @@
 import { Nothing } from 'fallout-utility';
-import { APIBinData, APIBinFileData, APIGetBinResponse } from '../types/apiTypes';
+import { APIBinFileData, APIGetBinResponse } from '../types/apiTypes';
 import { BinFile } from './BinFile';
 import { Client } from './Client';
 import { LongSourcebinURL, ShortSourcebinURL } from '..';
+import { AxiosRequestConfig } from 'axios';
 
 export interface BinOptions extends Nothing<Omit<APIGetBinResponse, 'files'> & { files: (Omit<APIBinFileData, 'content'> & { content?: string; })[] }> {
     client?: Client;
 }
 
 export class Bin implements Omit<APIGetBinResponse, 'created'> {
-    readonly hits: number;
-    readonly _id: string;
-    readonly key: string;
-    readonly title?: string;
-    readonly created: Date;
-    readonly description?: string;
-    readonly files: BinFile[] = [];
-    readonly client?: Client;
+    public hits!: number;
+    public _id!: string;
+    public key!: string;
+    public title?: string;
+    public created!: Date;
+    public description?: string;
+    public files: BinFile[] = [];
+    public client?: Client;
 
     get url(): LongSourcebinURL<true> {
         return `https://sourceb.in/${this.key}`;
@@ -27,20 +28,14 @@ export class Bin implements Omit<APIGetBinResponse, 'created'> {
     }
 
     constructor(options: BinOptions, contents?: { content: string; index: number; }[]) {
-        this.hits = options.hits;
-        this._id = options._id;
-        this.key = options.key;
-        this.created = new Date(options.created);
-        this.title = options.title;
-        this.description = options.description;
-        this.files = options.files.map((f, i) => {
-            const content = contents?.find(c => c.index === i)?.content;
-            if (content) f.content = content;
+        this._updateData(options, contents);
+    }
 
-            return new BinFile(this, i, f);
-        });
+    public async fetch(requestOptions?: AxiosRequestConfig): Promise<this> {
+        const data = await Client.getBin(this.key, requestOptions);
+        this._updateData(data);
 
-        this.client = options.client;
+        return this;
     }
 
     public async fetchFileContents(): Promise<string[]> {
@@ -54,11 +49,32 @@ export class Bin implements Omit<APIGetBinResponse, 'created'> {
         this.client?.cache.delete(this.key);
     }
 
-    public toJSON(): APIBinData {
+    public toJSON(): Omit<APIGetBinResponse, 'files'> & { files: APIBinFileData[] } {
         return {
+            hits: this.hits,
+            _id: this._id,
+            key: this.key,
+            created: this.created.toISOString(),
             title: this.title,
             description: this.description,
             files: this.files.map(f => f.toJSON())
         };
+    }
+
+    public _updateData(data: BinOptions, contents?: { content: string; index: number; }[]): void {
+        this.hits = data.hits ?? this.hits;
+        this._id = data._id ?? this._id;
+        this.key = data.key ?? this.key;
+        this.created = data.created ? new Date(data.created) : this.created;
+        this.title = data.title ?? this.title;
+        this.description = data.description ?? this.description;
+        this.files = data.files?.map((f, i) => {
+            const content = contents?.find(c => c.index === i)?.content;
+            if (content) f.content = content;
+
+            return new BinFile(this, i, f);
+        }) ?? this.files;
+
+        this.client = data.client;
     }
 }

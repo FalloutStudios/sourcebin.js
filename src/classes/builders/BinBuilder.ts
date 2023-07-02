@@ -1,4 +1,4 @@
-import { RestOrArray, normalizeArray } from 'fallout-utility';
+import { RestOrArray, normalizeArray, JSONEncodable, isJSONEncodable } from 'fallout-utility';
 import { APIBinData, APIBinFileData } from '../../types/apiTypes';
 import { BinFileBuilder } from './BinFileBuilder';
 
@@ -15,20 +15,20 @@ export class BinBuilder {
         return this;
     }
 
-    public addFile(file: ((f: BinFileBuilder) => BinFileBuilder)|BinFileBuilder): this {
-        this.data.files.push(file instanceof BinFileBuilder ? file.toJSON() : file(new BinFileBuilder()).toJSON());
+    public addFile(file: ((f: BinFileBuilder) => BinFileBuilder)|JSONEncodable<APIBinFileData>): this {
+        this.data.files.push(isJSONEncodable(file) ? file.toJSON() : file(new BinFileBuilder()).toJSON());
         return this;
     }
 
-    public addFiles(...files: RestOrArray<APIBinFileData|BinFileBuilder>): this {
+    public addFiles(...files: RestOrArray<APIBinFileData|JSONEncodable<APIBinFileData>>): this {
         files = normalizeArray(files);
-        this.data.files.push(...files.map(f => f instanceof BinFileBuilder ? f.toJSON() : f));
+        this.data.files.push(...files.map(f => isJSONEncodable(f) ? f.toJSON() : f));
         return this;
     }
 
-    public setFiles(...files: RestOrArray<APIBinFileData|BinFileBuilder>): this {
+    public setFiles(...files: RestOrArray<APIBinFileData|JSONEncodable<APIBinFileData>>): this {
         files = normalizeArray(files);
-        this.data.files = files.map(f => f instanceof BinFileBuilder ? f.toJSON() : f);
+        this.data.files = files.map(f => isJSONEncodable(f) ? f.toJSON() : f);
         return this;
     }
 

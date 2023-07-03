@@ -1,7 +1,7 @@
 {
   "name": "@falloutstudios/sourcebin.js",
   "description": "A simple https://sourceb.in api library",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "license": "GPL-3.0",
   "main": "./dist/index.js",
   "module": "./dist/esm.mjs",
